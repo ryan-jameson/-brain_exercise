@@ -82,13 +82,29 @@ public class SimpleServer {
 
     private static void runServer(File baseDir) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            log("[Server] Listening on port " + PORT);
             while (true) {
                 Socket client = serverSocket.accept();
-                activeConnections.incrementAndGet();
-                updateStats();
-                handleClient(client, baseDir);
-                activeConnections.decrementAndGet();
-                updateStats();
+                log("[Server] Connection from " + client.getInetAddress());
+
+                // 异步处理，使得主线程可以继续 accept，并且 UI 能够刷新显示 activeConnections
+                new Thread(() -> {
+                    activeConnections.incrementAndGet();
+                    updateStats();
+                    try {
+                        handleClient(client, baseDir);
+                    } catch (Exception e) {
+                        log("[Run Error] " + e.getMessage());
+                    } finally {
+                        activeConnections.decrementAndGet();
+                        updateStats();
+                        try {
+                            if (!client.isClosed()) client.close();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }).start();
             }
         } catch (IOException e) {
             log("[Server] Error: " + e.getMessage());
@@ -101,13 +117,14 @@ public class SimpleServer {
              OutputStream output = socket.getOutputStream();
              BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
 
-            String requestLine = reader.readLine();
-            if (requestLine == null || requestLine.isBlank()) {
-                return;
-            }
-            totalRequests.incrementAndGet();
-            updateStats();
-            log("[Server] " + LocalDateTime.now() + " " + requestLine);
+              String requestLine = reader.readLine();
+              // log("[Request] " + requestLine);
+              if (requestLine == null || requestLine.isBlank()) {
+                  return;
+              }
+              int current = totalRequests.incrementAndGet();
+              updateStats();
+              log("[Server] " + LocalDateTime.now() + " " + requestLine);
 
             String[] parts = requestLine.split(" ");
             if (parts.length < 2) {
