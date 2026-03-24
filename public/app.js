@@ -96,7 +96,6 @@ const RULES = {
   schulte: "规则：请按照 1 到 N 的顺序，尽可能快地点击屏幕上的数字方块。\n\n示例：如果包含9个格子，依次点击 1, 2, 3... 直到 9，每次点对都会变绿。",
   stroop: "规则：无视文字本身的意思，请选择文字【显示的颜色】。\n\n示例：如果屏幕上写着“红”字，但用蓝色的墨水渲染，你需要点击下方的【蓝】按钮。",
   sequence: "规则：屏幕上会先展现一组物品顺序。接着它们会被打乱并可以交互。请通过【点击选择再点击目标位交换】将它们恢复成原始顺序。\n\n示例：仔细记住苹果、汽车，然后将其重新排列。",
-  audio: "规则：测试时点击播报语音。请注意分辨并在脑海中屏蔽可能存在的干扰项，记住正确播报的数字序列，最后将其填入输入框中。\n\n示例：重点听清“3、5、1”并在框内输入 351。",
   mirror: "规则：左侧区域展示了随机的点阵高亮图案。请在右侧的交互网格中，点击单元格，绘制出其严格的“镜像（左右对称翻转）”图案！\n\n示例：左侧点在左数第1列，右侧镜像点应当在右数第1列（即左数第4列）。",
   categorize: "规则：系统会给出各种类型的物品（食品/用品/交通工具等），请针对每个物品点击对应的分类标签。\n\n提示：点错会立刻红框警告提示！请尽量做到全优",
   memory_story: "规则：屏幕上会出现一组带图标的情景物品，你有 3 秒钟的时间努力记住它们分别是什么。它们消失后，请从突然出现的大量混淆项中，重新把刚才出现过的物品全部精准挑拾出来！"
@@ -209,23 +208,6 @@ function showTask(task) {
     answerInput.value = '';
     answerInput.placeholder = '输入你记住的顺序';
     statusEl.textContent = '观察序列后排序';
-  } else if (task.type === 'audio') {
-    promptEl.textContent = task.prompt + "\n" + task.noise;
-    questionEl.innerHTML = `<button id="play-audio" style="padding:15px; font-size:18px; margin: 20px 0; cursor:pointer;">播放语音</button>`;
-    document.getElementById('play-audio').addEventListener('click', () => {
-        if ('speechSynthesis' in window) {
-            const msg = new SpeechSynthesisUtterance(task.sequence.join('，'));
-            msg.lang = 'zh-CN';
-            msg.rate = 0.8;
-            window.speechSynthesis.speak(msg);
-        } else {
-            alert("语音播放不支持，直接显示: " + task.sequence.join(', '));
-        }
-    });
-    answerInput.style.display = 'block';
-    answerInput.value = '';
-    answerInput.placeholder = '输入听到的数字序列（不要有空格）';
-    statusEl.textContent = '点击播放并记住数字';
   } else if (task.type === 'mirror') {
     promptEl.textContent = task.prompt;
     setupMirror(task);
@@ -322,7 +304,6 @@ function renderStats() {
         schulte: "舒尔特方格",
         stroop: "Stroop色词",
         sequence: "序列记忆",
-        audio: "听觉训练",
         mirror: "镜像协调",
         categorize: "规则分类",
         memory_story: "情景记忆"
@@ -367,14 +348,14 @@ function calculateAccuracy(task, answer) {
   if (task.type === 'stroop') {
     return window.stroopCorrect / Math.max(1, task.trials.length);
   }
-  if (task.type === 'audio') {
-    const cleanTarget = task.sequence.join('');
-    const cleanAnswer = answer.replace(/\s+/g, '');
-    let matches = 0;
-    for (let i = 0; i < Math.min(cleanTarget.length, cleanAnswer.length); i++) {
-      if (cleanTarget[i] === cleanAnswer[i]) matches++;
+  if (task.type === 'sequence' && sequenceState) {
+    const expected = sequenceState.originalOrder;
+    const current = sequenceState.currentOrder;
+    if (!expected.length) {
+      return null;
     }
-    return cleanTarget.length ? matches / cleanTarget.length : 0;
+    const correct = expected.filter((name, index) => current[index] === name).length;
+    return correct / expected.length;
   }
   if (task.type === 'mirror') {
     return window.mirrorCorrect ? 1.0 : 0.0;
@@ -389,15 +370,6 @@ function calculateAccuracy(task, answer) {
     }
     const correct = items.filter((item) => categorizeState.selections[item.name] === item.category).length;
     return correct / items.length;
-  }
-  if (task.type === 'sequence' && sequenceState) {
-    const expected = sequenceState.originalOrder;
-    const current = sequenceState.currentOrder;
-    if (!expected.length) {
-      return null;
-    }
-    const correct = expected.filter((name, index) => current[index] === name).length;
-    return correct / expected.length;
   }
   return null;
 }

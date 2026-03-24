@@ -9,24 +9,10 @@
 
 * **自主实现的轻量级 Web 容器**：无需 Tomcat / SpringBoot，通过原生 `ServerSocket` 监听，手工解析 HTTP Headers 和 Body。
 * **动静分离与完整的 CGI 链路**：支持 `public/` 静态资源原生分发；访问 `/cgi-bin/` 时支持使用进程管道激活 Python / `.bat` / Java 子应用处理动态请求。
-* **丰富的认知训练套件**：涵盖舒尔特方格 (Schulte Grid)、Stroop 色词、序列记忆、听觉训练、镜像协调等多种模式。
-* **智能 AI 报告分析**：接入大语言模型 (基于 OpenAI 接口范式)，能在后台归纳用户的训练记录并生成个性化的认知能力评估。
-* **桌面跨端体验**：内置了 `BrowserClient`（JavaFX WebKit），除了在系统浏览器游玩，也支持以内嵌 GUI 桌面程序的方式原生打包启动。
+* **个性化难度**：支持简单/困难模式，根据用户的年龄或训练需求，随时调控认知负荷。
+* **丰富的认知训练套件**：涵盖舒尔特方格 (Schulte Grid)、Stroop 色词、序列记忆、镜像协调等多种模式。
 
-## 📂 核心目录结构
-
-```text
-.
-├── src/                  # Java 核心源码（基于 Socket 的 Server / 桌面 Client）
-├── public/               # 前端静态工程（无依赖原生 JS/CSS/HTML）
-├── cgi-bin/              # 后端动态执行点（Python CGI 处理逻辑）
-│   ├── config.example.py # [请重命名为 config.py 并配置 AI 参数]
-│   ├── AISummary.py      # 负责调用 LLM 生成认知评估报告
-│   └── QuestionSelector.py # 复杂题目生成引擎
-└── scripts/              # 便捷启动脚本（预装 JavaFX / 一键启动服务等）
-```
-
-## 🚀 快速启动
+## 3. 部署使用说明
 
 本项目对环境依赖门槛极低，只需配置好 `Java 11+` 和 `Python 3.x`。
 

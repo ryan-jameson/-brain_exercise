@@ -21,13 +21,14 @@ TOPIC_LIBRARY = {
         "prompt": "Stroop 色词干扰 (Stroop Test) - 选出字体的颜色，而不要管文字内容",
     },
     "sequence": {
-        "prompt": "序列记忆 (Sequence Memory) - 记住出现的序列，然后复原",
-    },
-    "audio": {
-        "prompt": "听觉选择性注意 (Auditory Attention) - 记住声音或提示的数字并忽略干扰",
+        "prompt": "序列记忆连线 (Sequence Memory) - 记住顺序并将其按原序列重新排列",
+        "easy": 4,      # 4个物品
+        "hard": 8       # 8个物品
     },
     "mirror": {
-        "prompt": "镜像协调 (Mirror Coordination) - 识别左右镜像匹配关系",
+        "prompt": "镜像手眼协调绘制 (Mirror Coordination) - 在右侧画出左侧图案的轴对称镜像",
+        "easy": 9,      # 3x3
+        "hard": 25      # 5x5
     },
     "categorize": {
         "prompt": "规则分类 (Rule-based Categorization) - 将物品根据规则进行分类",
@@ -116,10 +117,6 @@ def build_task(topic: str, difficulty: str) -> dict:
         pool = load_neuroflex_pool("sequence.js", "itemPool")
         count = pick_count_by_difficulty(difficulty_level, [4, 6, 9])
         task["sequenceItems"] = random.sample(pool, k=min(count, len(pool))) if pool else []
-    elif topic == "audio":
-        count = pick_count_by_difficulty(difficulty_level, [6, 8, 9])
-        task["sequence"] = [random.randint(0, 9) for _ in range(count)]
-        task["noise"] = "伴随环境噪音"
     elif topic == "mirror":
         task["points"] = build_mirror_shape(difficulty_level)
     elif topic == "categorize":
