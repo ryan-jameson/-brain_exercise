@@ -19,6 +19,8 @@ cgi-bin/.env
 *.out
 temp*/
 temp.json
+*.txt
+server_log.txt
 
 # IDEs
 .vscode/
