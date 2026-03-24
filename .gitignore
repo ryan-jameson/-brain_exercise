@@ -1,0 +1,35 @@
+# Build and Compilation outputs
+out/
+bin/
+*.class
+
+# Python Caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Application specific configuration / secrets
+cgi-bin/config.py
+cgi-bin/.env
+
+# Temporary files and Logs
+*.log
+*.err
+*.out
+temp*/
+temp.json
+
+# IDEs
+.vscode/
+.idea/
+
+# Downloaded tools and External Repos
+tools/
+downloads/
+neuroflex/
+*.zip
+
+# OS generated files
+.DS_Store
+Thumbs.db
